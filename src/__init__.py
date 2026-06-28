@@ -1,0 +1,1 @@
+# SwiftSearch package initialization
