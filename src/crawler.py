@@ -71,6 +71,7 @@ def crawl(seed_urls, max_pages=5, delay=1, output_file="crawled_data.json"):
     #basically bfs
     visited = set()
     crawled_data = {}
+    graph = {}
     
     while to_crawl and len(visited) < max_pages:
         url = to_crawl.pop(0)
@@ -88,6 +89,7 @@ def crawl(seed_urls, max_pages=5, delay=1, output_file="crawled_data.json"):
             crawled_data[url] = text
             
             out_links = extract_links(html, url)
+            graph[url] = out_links
             print(f"   Found {len(out_links)} outbound links.")
             
             for link in out_links:
@@ -98,6 +100,9 @@ def crawl(seed_urls, max_pages=5, delay=1, output_file="crawled_data.json"):
             
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(crawled_data, f, indent=4) #saves our data into a JSON file so we an access in phase 2. 
+        
+    with open('graph.json', 'w', encoding='utf-8') as f:
+        json.dump(graph, f, indent=4)
         
     return crawled_data
 
