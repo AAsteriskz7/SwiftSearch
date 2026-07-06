@@ -21,8 +21,8 @@ STOP_WORDS = set([
     "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves"
 ])
 
-def tokenize(text): #converts everything to lowercase
-    text = text.lower()
+def tokenize(text): 
+    text = text.lower()#converts everything to lowercase
     
     words = re.findall(r'[a-z0-9]+', text) #deletes all punctation and sybmols and emojits etc
     

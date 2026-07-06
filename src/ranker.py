@@ -1,19 +1,19 @@
 import json
 import math
 
-def calculate_pagerank(graph, damping=0.85, iterations=10):
+def calculate_pagerank(graph, damping=0.85, iterations=10): #concept in linear algebra. to rank webpages and their visits
     pagerank = {}
     
     for url in graph:
-        pagerank[url] = 1.0
+        pagerank[url] = 1.0 #gives every single webpage a base score of 1.0
         
     for _ in range(iterations):
         new_pagerank = {}
         for url in graph:
             rank_sum = 0
             for pointing_url, outbound_links in graph.items():
-                if url in outbound_links:
-                    rank_sum += pagerank[pointing_url] / len(outbound_links)
+                if url in outbound_links: #for every page we look at entire internet to see what pages links to it. 
+                    rank_sum += pagerank[pointing_url] / len(outbound_links) #splits voting power equally amongst all links it has
                     
             new_pagerank[url] = (1 - damping) + damping * rank_sum
             
@@ -21,13 +21,13 @@ def calculate_pagerank(graph, damping=0.85, iterations=10):
         
     return pagerank
 
-def tokenize_query(query):
+def tokenize_query(query): #instead of rewriting, we import from indexer.py
     query = query.lower()
     
     from indexer import STOP_WORDS, tokenize
     return tokenize(query)
 
-def score_tf_idf(query, inverted_index, total_docs):
+def score_tf_idf(query, inverted_index, total_docs): #calculates the content relevance of a page to user search
     scores = {}
     query_words = tokenize_query(query)
     
@@ -35,10 +35,10 @@ def score_tf_idf(query, inverted_index, total_docs):
         if word not in inverted_index:
             continue
             
-        document_frequencies = inverted_index[word]
+        document_frequencies = inverted_index[word] #look up the searchd word in db and get all urls
         doc_count = len(document_frequencies)
         
-        idf = math.log(total_docs / (1 + doc_count))
+        idf = math.log(total_docs / (1 + doc_count)) #inverse document frqeuency formula. 
         
         for url, tf in document_frequencies.items():
             if url not in scores:
