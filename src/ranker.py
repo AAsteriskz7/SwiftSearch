@@ -1,64 +1,113 @@
-import json
 import math
+import db
 
-def calculate_pagerank(graph, damping=0.85, iterations=10): #concept in linear algebra. to rank webpages and their visits
-    pagerank = {}
+def calculate_pagerank(damping=0.85, iterations=10):
+    conn = db.get_connection()
+    cursor = conn.cursor()
     
-    for url in graph:
-        pagerank[url] = 1.0 #gives every single webpage a base score of 1.0
-        
+    # Load all documents
+    cursor.execute("SELECT url FROM documents")
+    urls = [row['url'] for row in cursor.fetchall()]
+    
+    # Load all links
+    cursor.execute("SELECT from_url, to_url FROM links")
+    links_data = cursor.fetchall()
+    
+    conn.close()
+    
+    # Build graph
+    graph = {url: [] for url in urls}
+    for row in links_data:
+        from_u, to_u = row['from_url'], row['to_url']
+        if from_u in graph:
+            graph[from_u].append(to_u)
+            
+    # Init pagerank
+    pagerank = {url: 1.0 for url in urls}
+    
     for _ in range(iterations):
         new_pagerank = {}
-        for url in graph:
+        for url in urls:
             rank_sum = 0
             for pointing_url, outbound_links in graph.items():
-                if url in outbound_links: #for every page we look at entire internet to see what pages links to it. 
-                    rank_sum += pagerank[pointing_url] / len(outbound_links) #splits voting power equally amongst all links it has
+                if url in outbound_links:
+                    rank_sum += pagerank[pointing_url] / len(outbound_links)
                     
             new_pagerank[url] = (1 - damping) + damping * rank_sum
-            
         pagerank = new_pagerank
         
     return pagerank
 
-def tokenize_query(query): #instead of rewriting, we import from indexer.py
-    query = query.lower()
-    
-    from indexer import STOP_WORDS, tokenize
+def tokenize_query(query):
+    from indexer import tokenize
     return tokenize(query)
 
-def score_tf_idf(query, inverted_index, total_docs): #calculates the content relevance of a page to user search
+def score_bm25(query, total_docs, avgdl, k1=1.5, b=0.75):
     scores = {}
     query_words = tokenize_query(query)
     
+    conn = db.get_connection()
+    cursor = conn.cursor()
+    
     for word in query_words:
-        if word not in inverted_index:
+        # Get the documents containing this word and their term frequency
+        cursor.execute('''
+            SELECT i.url, i.frequency, d.word_count 
+            FROM inverted_index i
+            JOIN documents d ON i.url = d.url
+            WHERE i.word = ?
+        ''', (word,))
+        
+        results = cursor.fetchall()
+        
+        doc_count = len(results)
+        if doc_count == 0:
             continue
             
-        document_frequencies = inverted_index[word] #look up the searchd word in db and get all urls
-        doc_count = len(document_frequencies)
+        # Standard BM25 IDF formula
+        idf = math.log(((total_docs - doc_count + 0.5) / (doc_count + 0.5)) + 1)
         
-        idf = math.log(total_docs / (1 + doc_count)) #inverse document frqeuency formula. 
-        
-        for url, tf in document_frequencies.items():
+        for row in results:
+            url = row['url']
+            tf = row['frequency']
+            doc_length = row['word_count']
+            
+            # BM25 Term Frequency formula
+            numerator = tf * (k1 + 1)
+            denominator = tf + k1 * (1 - b + b * (doc_length / avgdl))
+            
             if url not in scores:
                 scores[url] = 0
-                
-            scores[url] += tf * idf
+            scores[url] += idf * (numerator / denominator)
             
+    conn.close()
     return scores
 
-def search(query, inverted_index, graph, alpha=0.5):
-    total_docs = len(graph)
+def search(query, alpha=0.5):
+    conn = db.get_connection()
+    cursor = conn.cursor()
     
-    tf_idf_scores = score_tf_idf(query, inverted_index, total_docs)
+    cursor.execute("SELECT value FROM metadata WHERE key = 'total_docs'")
+    row = cursor.fetchone()
+    total_docs = float(row['value']) if row else 0
     
-    pageranks = calculate_pagerank(graph)
+    cursor.execute("SELECT value FROM metadata WHERE key = 'avgdl'")
+    row = cursor.fetchone()
+    avgdl = float(row['value']) if row else 0
+    
+    conn.close()
+    
+    if total_docs == 0:
+        return []
+        
+    bm25_scores = score_bm25(query, total_docs, avgdl)
+    pageranks = calculate_pagerank()
     
     final_scores = {}
     
-    for url in tf_idf_scores:
-        content_score = tf_idf_scores.get(url, 0)
+    # Combine scores (only for pages that match the query text)
+    for url in bm25_scores:
+        content_score = bm25_scores.get(url, 0)
         authority_score = pageranks.get(url, 0)
         
         final_score = (alpha * content_score) + ((1 - alpha) * authority_score)
@@ -68,21 +117,13 @@ def search(query, inverted_index, graph, alpha=0.5):
     return ranked_results
 
 if __name__ == "__main__":
-    try:
-        with open("index.json", 'r', encoding='utf-8') as f:
-            index = json.load(f)
-        with open("graph.json", 'r', encoding='utf-8') as f:
-            graph = json.load(f)
-            
-        print("Data loaded successfully!")
-        
-        query = "example domain"
-        print(f"\nSearching for: '{query}'")
-        
-        results = search(query, index, graph)
-        
+    query = "example"
+    print(f"\nSearching for: '{query}' using BM25 and SQLite...")
+    
+    results = search(query)
+    
+    if not results:
+        print("No results found.")
+    else:
         for rank, (url, score) in enumerate(results, 1):
             print(f"{rank}. {url} (Score: {score:.4f})")
-            
-    except FileNotFoundError:
-        print("Required files not found. Run crawler.py then indexer.py first!")

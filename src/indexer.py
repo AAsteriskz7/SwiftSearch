@@ -1,8 +1,9 @@
-import json
 import re
+import nltk
+from nltk.stem import PorterStemmer
+import db
 
-
-#massive set of common english words. we filter them out so we dont search using them as keywords. 
+# Massive set of common english words. We filter them out so we don't search using them. 
 STOP_WORDS = set([
     "a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't", 
     "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", 
@@ -21,60 +22,74 @@ STOP_WORDS = set([
     "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves"
 ])
 
+# Initialize the stemmer
+stemmer = PorterStemmer()
+
 def tokenize(text): 
-    text = text.lower()#converts everything to lowercase
-    
-    words = re.findall(r'[a-z0-9]+', text) #deletes all punctation and sybmols and emojits etc
-    
-    filtered_words = [word for word in words if word not in STOP_WORDS] #checking against our set above to see if its in it. 
-    
+    text = text.lower()
+    words = re.findall(r'[a-z0-9]+', text)
+    # Filter out stop words and apply Porter Stemmer
+    filtered_words = [stemmer.stem(word) for word in words if word not in STOP_WORDS]
     return filtered_words
 
-def build_index(crawled_data):
-    inverted_index = {} #empty dict, or database. should populate this with word as key and url as value. 
+def build_index():
+    conn = db.get_connection()
+    cursor = conn.cursor()
     
-    for url, text in crawled_data.items(): #adding to db
-        words = tokenize(text)
+    print("Loading documents from SQLite database...")
+    cursor.execute("SELECT url, content, word_count FROM documents")
+    documents = cursor.fetchall()
+    
+    if not documents:
+        print("No documents found. Run the crawler first.")
+        conn.close()
+        return
+        
+    print(f"Loaded {len(documents)} pages. Building inverted index...")
+    
+    # We will build it in memory first, then batch insert for speed
+    inverted_index = {}
+    total_length = 0
+    
+    for row in documents:
+        url = row['url']
+        content = row['content']
+        total_length += row['word_count']
+        
+        words = tokenize(content)
         
         for word in words:
             if word not in inverted_index:
                 inverted_index[word] = {}
-                
             if url not in inverted_index[word]:
                 inverted_index[word][url] = 0
-                
             inverted_index[word][url] += 1
             
-    return inverted_index
-
-def save_index(index, filename="index.json"):
-    with open(filename, 'w', encoding='utf-8') as f:
-        json.dump(index, f, indent=4)
-
-def load_data(filename="crawled_data.json"):
-    try:
-        with open(filename, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {}
+    # Calculate average document length
+    avg_length = total_length / len(documents) if len(documents) > 0 else 0
+    
+    print("Saving to database...")
+    # Clear the old index
+    cursor.execute("DELETE FROM inverted_index")
+    cursor.execute("DELETE FROM metadata WHERE key IN ('total_docs', 'avgdl')")
+    
+    # Store metadata for BM25
+    cursor.execute("INSERT INTO metadata (key, value) VALUES (?, ?)", ('total_docs', str(len(documents))))
+    cursor.execute("INSERT INTO metadata (key, value) VALUES (?, ?)", ('avgdl', str(avg_length)))
+    
+    # Batch insert index
+    insert_data = []
+    for word, url_counts in inverted_index.items():
+        for url, freq in url_counts.items():
+            insert_data.append((word, url, freq))
+            
+    cursor.executemany("INSERT INTO inverted_index (word, url, frequency) VALUES (?, ?, ?)", insert_data)
+    
+    conn.commit()
+    conn.close()
+    
+    print(f"Index built successfully! Total unique stem roots: {len(inverted_index)}")
 
 if __name__ == "__main__":
-    print("Loading crawled data...")
-    data = load_data()
-    
-    if not data:
-        print("No data found! Please run crawler.py first.")
-    else:
-        print(f"Loaded {len(data)} pages. Building index...")
-        
-        index = build_index(data)
-        
-        save_index(index)
-        
-        print(f"Index built successfully! Total unique words: {len(index)}")
-        
-        sample_word = list(index.keys())[0] if index else None
-        if sample_word:
-            print(f"\nExample - Word '{sample_word}' is found in:")
-            for url, count in index[sample_word].items():
-                print(f"  - {url} ({count} times)")
+    db.init_db()
+    build_index()
