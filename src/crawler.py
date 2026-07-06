@@ -130,9 +130,13 @@ async def crawl(seed_urls, max_pages=5, concurrency=5):
         w.cancel()
 
 if __name__ == "__main__":
-    seeds = ["https://example.com", "https://books.toscrape.com/"]
+    seeds = [
+        "https://en.wikipedia.org/wiki/Web_crawler",
+        "https://en.wikipedia.org/wiki/Search_engine",
+        "https://en.wikipedia.org/wiki/Python_(programming_language)"
+    ]
     print("Starting Async SQLite Crawler test (using threads)...")
-    asyncio.run(crawl(seeds, max_pages=15, concurrency=3))
+    asyncio.run(crawl(seeds, max_pages=500, concurrency=10))
     print("\n=== Async Crawl Complete! ===")
     
     conn = db.get_connection()
