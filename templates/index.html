@@ -3,167 +3,553 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swift Search</title>
+    <title>{% if query %}{{ query }} - Swift Search{% else %}Swift Search{% endif %}</title>
     <style>
-        body { font-family: arial, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; }
-        
-        /* Top Navigation */
-        .top-nav { display: flex; justify-content: space-between; padding: 6px; font-size: 13px; align-items: center; }
-        .top-nav a { color: rgba(0,0,0,0.87); text-decoration: none; padding: 5px; margin: 0 5px; display: inline-block; }
+        :root {
+            --text-primary: #202124;
+            --text-secondary: #4d5156;
+            --text-link: #1a0dab;
+            --text-url: #202124;
+            --text-gray: #70757a;
+            --border-color: #dadce0;
+            --bg-hover: rgba(60,64,67,0.08);
+            --search-border: #dfe1e5;
+            --search-shadow: 0 2px 8px 1px rgba(64,60,67,.24);
+            --footer-bg: #f2f2f2;
+            --btn-bg: #f8f9fa;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ============ TOP NAVIGATION BAR ============ */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            padding: 6px;
+            font-size: 13px;
+            line-height: 24px;
+        }
+        .top-nav a {
+            display: inline-block;
+            padding: 5px;
+            margin: 0 5px;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: opacity 0.3s ease-in-out;
+        }
         .top-nav a:hover { text-decoration: underline; }
-        .top-nav-left, .top-nav-right { display: flex; align-items: center; }
-        .top-nav-right a { margin-left: 5px; }
-        
-        /* Icons */
-        .icon-btn { cursor: pointer; border-radius: 50%; padding: 8px; display: flex; align-items: center; justify-content: center; }
-        .icon-btn:hover { background-color: rgba(60,64,67,0.08); }
-        .profile-btn { border-radius: 50%; background-color: #34A853; color: white; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-left: 10px; cursor: pointer; }
-
-        /* Homepage Layout */
-        .main-content { flex-grow: 1; display: flex; flex-direction: column; align-items: center; padding-top: 10vh; }
-        .logo { font-size: 80px; font-weight: bold; margin-bottom: 25px; letter-spacing: -3px; user-select: none; }
-        
-        /* Google Colors */
-        .logo span:nth-child(1), .logo span:nth-child(4), .logo span:nth-child(7) { color: #4285F4; } 
-        .logo span:nth-child(2), .logo span:nth-child(6), .logo span:nth-child(8), .logo span:nth-child(11) { color: #EA4335; } 
-        .logo span:nth-child(3), .logo span:nth-child(9) { color: #FBBC05; } 
-        .logo span:nth-child(5), .logo span:nth-child(10) { color: #34A853; } 
-        
-        .search-container { width: 100%; max-width: 584px; position: relative; }
-        .search-box { 
-            display: flex; align-items: center; border: 1px solid #dfe1e5; 
-            border-radius: 24px; padding: 5px 8px 5px 14px; box-shadow: none; 
-            transition: box-shadow 200ms; background: #fff; height: 34px;
+        .top-nav a:first-of-type { margin-left: 15px; }
+        .nav-spacer { flex-grow: 1; }
+        .top-nav-right {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-right: 8px;
         }
-        .search-box:hover, .search-box:focus-within { box-shadow: 0 1px 6px rgba(32,33,36,.28); border-color: rgba(223,225,229,0); }
-        .search-box input { border: none; outline: none; font-size: 16px; flex-grow: 1; padding: 0 10px; height: 34px; }
-        .search-icon { display: flex; align-items: center; padding-right: 4px; }
-        .mic-icon, .camera-icon { padding: 0 8px; cursor: pointer; display: flex; align-items: center; }
+        .top-nav-right a {
+            color: var(--text-primary);
+            font-size: 13px;
+            line-height: 24px;
+            padding: 8px;
+            text-decoration: none;
+        }
+        .top-nav-right a:hover { text-decoration: underline; }
 
-        .buttons { text-align: center; margin-top: 25px; }
+        /* Icon buttons (grid, labs) */
+        .icon-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+        }
+        .icon-btn:hover { background: var(--bg-hover); }
+        .icon-btn svg { fill: #5f6368; }
+
+        /* Profile avatar */
+        .profile-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #1a73e8;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            margin-left: 4px;
+            position: relative;
+        }
+        .profile-ring {
+            position: absolute;
+            top: -4px; left: -4px;
+            width: 40px; height: 40px;
+        }
+
+        /* ============ HOMEPAGE CENTER ============ */
+        .homepage {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            flex-grow: 1;
+        }
+        .logo-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 150px;
+            height: calc(100vh - 560px);
+            max-height: 290px;
+            justify-content: flex-end;
+        }
+        .logo-area a { text-decoration: none; }
+        .logo-img {
+            display: block;
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+            object-position: center bottom;
+            width: auto;
+            vertical-align: bottom;
+        }
+
+        /* Text logo fallback */
+        .logo-text {
+            font-size: 90px;
+            font-weight: 400;
+            margin-bottom: 10px;
+            letter-spacing: -2px;
+            user-select: none;
+            font-family: 'Product Sans', arial, sans-serif;
+        }
+        .logo-text .blue   { color: #4285F4; }
+        .logo-text .red    { color: #EA4335; }
+        .logo-text .yellow { color: #FBBC05; }
+        .logo-text .green  { color: #34A853; }
+
+        /* ============ SEARCH BAR ============ */
+        .search-wrapper {
+            padding: 20px 96px;
+        }
+        .search-form {
+            margin: 0 auto;
+            max-width: 688px;
+            min-width: 295px;
+            position: relative;
+        }
+        .search-box {
+            display: flex;
+            align-items: center;
+            min-height: 50px;
+            background: #fff;
+            border: 1px solid var(--search-border);
+            box-shadow: 0px 3px 10px 0px rgba(31, 31, 31, 0.08);
+            border-radius: 26px;
+            padding: 0 8px 0 20px;
+            transition: box-shadow 200ms, border-color 200ms;
+        }
+        .search-box:hover,
+        .search-box:focus-within {
+            background: #fff;
+            box-shadow: var(--search-shadow);
+            border-color: transparent;
+        }
+        .search-input-area {
+            display: flex;
+            flex-wrap: wrap;
+            flex: 1;
+            position: relative;
+        }
+        .search-box textarea,
+        .search-box input[type="text"] {
+            font: 16px 'Google Sans', Roboto, Arial, sans-serif;
+            line-height: 22px;
+            width: 100%;
+            resize: none;
+            background-color: transparent;
+            border: none;
+            margin: 0;
+            padding: 14px 0 8px 0;
+            color: rgba(0,0,0,.87);
+            word-wrap: break-word;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .search-box input[type="text"] {
+            padding: 0;
+            line-height: 40px;
+            height: 40px;
+        }
+        .search-actions {
+            display: flex;
+            flex: 0 0 auto;
+            align-items: stretch;
+            height: 50px;
+            gap: 0;
+        }
+        .search-action-btn {
+            flex: 1 0 auto;
+            display: flex;
+            cursor: pointer;
+            align-items: center;
+            border: 0;
+            background: transparent;
+            padding: 0 8px;
+            width: 24px;
+            line-height: 44px;
+            position: relative;
+        }
+        .search-action-btn svg {
+            height: 24px;
+            width: 24px;
+            vertical-align: middle;
+        }
+
+        /* Submit button (Gemini style) */
+        .submit-btn {
+            align-self: center;
+            background: var(--btn-bg);
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            margin-left: 8px;
+            padding: 0 16px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-primary);
+            position: relative;
+            overflow: hidden;
+        }
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            inset: 1px;
+            border-radius: 100px;
+            background: var(--btn-bg);
+        }
+        .submit-btn:hover::before {
+            filter: blur(2px);
+        }
+        .submit-btn > * { position: relative; z-index: 1; }
+        .submit-btn svg { width: 20px; height: 20px; }
+
+        /* ============ GREETING (Google AI style) ============ */
+        .greeting {
+            text-align: center;
+            margin-top: 24px;
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+            font-size: 32px;
+            line-height: 40px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* ============ BUTTONS ROW ============ */
+        .buttons {
+            text-align: center;
+            margin-top: 22px;
+        }
         .buttons button {
-            background-color: #f8f9fa; border: 1px solid #f8f9fa; border-radius: 4px;
-            color: #3c4043; font-family: arial,sans-serif; font-size: 14px;
-            margin: 0 4px; padding: 0 16px; line-height: 27px; height: 36px; cursor: pointer;
+            background-color: var(--btn-bg);
+            border: 1px solid var(--btn-bg);
+            border-radius: 4px;
+            color: #3c4043;
+            font-family: arial, sans-serif;
+            font-size: 14px;
+            margin: 0 4px;
+            padding: 0 16px;
+            line-height: 27px;
+            height: 36px;
+            cursor: pointer;
+            min-width: 54px;
         }
-        .buttons button:hover { border: 1px solid #dadce0; box-shadow: 0 1px 1px rgba(0,0,0,.1); color: #202124; }
+        .buttons button:hover {
+            border: 1px solid #c6c6c6;
+            box-shadow: 0 1px 1px rgba(0,0,0,.1);
+            color: #202124;
+        }
 
-        /* Footer */
-        .footer { background: #f2f2f2; color: #70757a; font-size: 14px; }
-        .footer-location { padding: 15px 30px; border-bottom: 1px solid #dadce0; }
-        .footer-links { display: flex; justify-content: space-between; padding: 15px 30px; }
-        .footer-links a { color: #70757a; text-decoration: none; padding: 0 15px; display: inline-block; }
+        /* ============ FLEX SPACER ============ */
+        .flex-grow { flex-grow: 1; }
+
+        /* ============ FOOTER ============ */
+        .footer {
+            background: var(--footer-bg);
+            color: var(--text-gray);
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .footer-location {
+            padding: 15px 30px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .footer-links {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 30px;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: var(--text-gray);
+            text-decoration: none;
+            padding: 0 15px;
+            display: inline-block;
+            line-height: 28px;
+        }
         .footer-links a:hover { text-decoration: underline; }
-        @media (max-width: 600px) { .footer-links { flex-direction: column; text-align: center; } .footer-links a { padding: 10px; } }
+        @media (max-width: 600px) {
+            .footer-links { flex-direction: column; text-align: center; }
+            .footer-links a { padding: 10px; }
+            .search-wrapper { padding: 20px 16px; }
+            .logo-area { height: auto; min-height: 100px; padding-top: 40px; }
+        }
 
-        /* Results Page Specifics */
-        .results-header { display: flex; align-items: center; padding: 20px 30px; border-bottom: 1px solid #ebebeb; }
-        .results-logo { font-size: 30px; font-weight: bold; margin-right: 30px; text-decoration: none; letter-spacing: -1px; }
-        .results-search-container { max-width: 690px; flex-grow: 1; }
-        .results-body { padding: 20px 150px; max-width: 652px; flex-grow: 1; }
-        
+        /* ============ RESULTS PAGE ============ */
+        .results-header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #ebebeb;
+            position: sticky;
+            top: 0;
+            background: #fff;
+            z-index: 100;
+        }
+        .results-logo {
+            font-size: 30px;
+            font-weight: 400;
+            margin-right: 30px;
+            text-decoration: none;
+            letter-spacing: -1px;
+            font-family: 'Product Sans', arial, sans-serif;
+        }
+        .results-search-container {
+            max-width: 690px;
+            flex-grow: 1;
+        }
+        .results-search-container .search-box {
+            margin: 0;
+            box-shadow: 0 1px 6px rgba(32,33,36,.28);
+            border-color: transparent;
+            min-height: 44px;
+        }
+        .results-body {
+            padding: 20px 150px;
+            max-width: 852px;
+            flex-grow: 1;
+        }
+        .result-stats {
+            color: var(--text-gray);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
         .result-item { margin-bottom: 30px; }
-        .result-url { color: #202124; font-size: 14px; text-decoration: none; display: block; margin-bottom: 2px; }
-        .result-title { color: #1a0dab; font-size: 20px; text-decoration: none; line-height: 1.3; display: block; }
+        .result-url {
+            color: var(--text-url);
+            font-size: 14px;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 2px;
+            line-height: 1.3;
+        }
+        .result-title {
+            color: var(--text-link);
+            font-size: 20px;
+            text-decoration: none;
+            line-height: 1.3;
+            display: block;
+        }
         .result-title:hover { text-decoration: underline; }
-        .result-snippet { color: #4d5156; font-size: 14px; line-height: 1.58; margin-top: 4px; }
-        .result-score { color: #70757a; font-size: 12px; margin-top: 2px; font-style: italic; }
+        .result-snippet {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.58;
+            margin-top: 4px;
+        }
+        .result-score {
+            color: var(--text-gray);
+            font-size: 12px;
+            margin-top: 2px;
+            font-style: italic;
+        }
+
+        @media (max-width: 800px) {
+            .results-body { padding: 20px 20px; }
+        }
     </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@400&display=swap" rel="stylesheet">
 </head>
 <body>
 
 {% if not query %}
-    <!-- HOMEPAGE -->
-    <div class="top-nav">
-        <div class="top-nav-left">
+    <!-- ============ HOMEPAGE ============ -->
+    <div class="homepage">
+        <!-- Top Nav -->
+        <div class="top-nav" role="navigation">
             <a href="#">About</a>
             <a href="#">Store</a>
-        </div>
-        <div class="top-nav-right">
-            <a href="#">Gmail</a>
-            <a href="#">Images</a>
-            <div class="icon-btn" style="margin-left: 10px;">
-                <svg focusable="false" viewBox="0 0 24 24" width="24" height="24" fill="#5f6368"><path d="M6 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm12 20c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-14c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-6 6c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path></svg>
-            </div>
-            <div class="profile-btn">S</div>
-        </div>
-    </div>
+            <div class="nav-spacer"></div>
+            <div class="top-nav-right">
+                <a href="#">Gmail</a>
+                <a href="#">Images</a>
 
-    <div class="main-content">
-        <div class="logo">
-            <span>S</span><span>w</span><span>i</span><span>f</span><span>t</span>
-            <span> </span>
-            <span>S</span><span>e</span><span>a</span><span>r</span><span>c</span><span>h</span>
+                <!-- Search Labs icon -->
+                <div class="icon-btn" title="Search Labs">
+                    <svg focusable="false" height="24px" viewBox="0 -960 960 960" width="24px">
+                        <path d="M209-120q-42 0-70.5-28.5T110-217q0-14 3-25.5t9-21.5l228-341q10-14 15-31t5-34v-110h-20q-13 0-21.5-8.5T320-810q0-13 8.5-21.5T350-840h260q13 0 21.5 8.5T640-810q0 13-8.5 21.5T610-780h-20v110q0 17 5 34t15 31l227 341q6 9 9.5 20.5T850-217q0 41-28 69t-69 28H209Zm221-660v110q0 26-7.5 50.5T401-573L276-385q-6 8-8.5 16t-2.5 16q0 23 17 39.5t42 16.5q28 0 56-12t80-47q69-45 103.5-62.5T633-443q4-1 5.5-4.5t-.5-7.5l-78-117q-15-21-22.5-46t-7.5-52v-110H430Z" fill="#5f6368"></path>
+                    </svg>
+                </div>
+
+                <!-- Google Apps grid icon -->
+                <div class="icon-btn" aria-label="Google apps" title="Google apps">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="24" height="24">
+                        <path d="M6,8c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM12,20c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM6,20c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM6,14c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM12,14c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM16,6c0,1.1 0.9,2 2,2s2,-0.9 2,-2 -0.9,-2 -2,-2 -2,0.9 -2,2zM12,8c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM18,14c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM18,20c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2z" fill="#5f6368"></path>
+                    </svg>
+                </div>
+
+                <!-- Profile avatar with colored ring -->
+                <div class="profile-btn" title="Google Account: User">
+                    <svg class="profile-ring" focusable="false" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4.02,28.27C2.73,25.8,2,22.98,2,20c0-2.87,0.68-5.59,1.88-8l-1.72-1.04C0.78,13.67,0,16.75,0,20c0,3.31,0.8,6.43,2.23,9.18L4.02,28.27z" fill="#F6AD01"></path>
+                        <path d="M32.15,33.27C28.95,36.21,24.68,38,20,38c-6.95,0-12.98-3.95-15.99-9.73l-1.79,0.91C5.55,35.61,12.26,40,20,40c5.2,0,9.93-1.98,13.48-5.23L32.15,33.27z" fill="#249A41"></path>
+                        <path d="M33.49,34.77C37.49,31.12,40,25.85,40,20c0-5.86-2.52-11.13-6.54-14.79l-1.37,1.46C35.72,9.97,38,14.72,38,20c0,5.25-2.26,9.98-5.85,13.27L33.49,34.77z" fill="#3174F1"></path>
+                        <path d="M20,2c4.65,0,8.89,1.77,12.09,4.67l1.37-1.46C29.91,1.97,25.19,0,20,0l0,0C12.21,0,5.46,4.46,2.16,10.96L3.88,12C6.83,6.08,12.95,2,20,2" fill="#E92D18"></path>
+                    </svg>
+                    A
+                </div>
+            </div>
         </div>
-        <div class="search-container">
-            <form action="/" method="GET">
+
+        <!-- Logo Area -->
+        <div class="logo-area">
+            <a href="/">
+                <div class="logo-text">
+                    <span class="blue">S</span><span class="red">w</span><span class="yellow">i</span><span class="blue">f</span><span class="green">t</span><span class="red">S</span><span class="yellow">e</span><span class="blue">a</span><span class="green">r</span><span class="red">c</span><span class="blue">h</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-wrapper">
+            <form action="/" method="GET" autocomplete="off" role="search" class="search-form">
                 <div class="search-box">
-                    <div class="search-icon">
-                        <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="#9aa0a6"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+                    <div class="search-input-area">
+                        <input type="text" name="q" value="" autofocus title="Search" aria-label="Search" placeholder="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="2048" id="search-input">
                     </div>
-                    <input type="text" name="q" value="" autofocus>
-                    <div class="mic-icon">
-                        <svg focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#4285f4" d="m12 15c1.66 0 3-1.31 3-2.97v-7.02c0-1.66-1.34-3.01-3-3.01s-3 1.34-3 3.01v7.02c0 1.66 1.34 2.97 3 2.97z"></path><path fill="#34a853" d="m11 18.08h2v3.92h-2z"></path><path fill="#fbbc05" d="m7.05 16.87c-1.27-1.33-2.05-2.83-2.05-4.87h2c0 1.45.56 2.42 1.47 3.38v.32l-1.15 1.18z"></path><path fill="#ea4335" d="m12 16.93a4.97 5.25 0 0 1 -3.54 -1.55l-1.41 1.49c1.26 1.34 3.02 2.13 4.95 2.13 3.87 0 6.99-2.92 6.99-7h-1.99c0 2.92-2.24 4.93-5 4.93z"></path></svg>
-                    </div>
-                    <div class="camera-icon">
-                        <svg focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#4285f4" d="m13.5 9c0 1.93-1.57 3.5-3.5 3.5s-3.5-1.57-3.5-3.5 1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5zm-5 0c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5-1.5.67-1.5 1.5z"></path><path fill="#ea4335" d="m10 16c-3.31 0-6-2.69-6-6h2c0 2.21 1.79 4 4 4v2z"></path><path fill="#fbbc05" d="m16 10h-2c0 3.31-2.69 6-6 6v2c4.41 0 8-3.59 8-8z"></path><path fill="#34a853" d="m16 10h2c0 2.21-1.79 4-4 4v2c3.31 0 6-2.69 6-6z"></path></svg>
+                    <div class="search-actions">
+                        <!-- Clear button (hidden by default) -->
+
+                        <!-- Voice search -->
+                        <div class="search-action-btn" aria-label="Search by voice" role="button" tabindex="0" title="Search by voice">
+                            <svg aria-hidden="true" focusable="false" viewBox="0 -960 960 960" xmlns="http://www.w3.org/2000/svg">
+                                <path fill="#4285f4" d="M480-400q-50 0-85-35t-35-85v-240q0-50 35-85t85-35q50 0 85 35t35 85v240q0 50-35 85t-85 35Zm-40 280v-123q-104-14-172-93t-68-184h80q0 83 58.5 141.5T480-320q83 0 141.5-58.5T680-520h80q0 105-68 184t-172 93v123h-80Z"></path>
+                            </svg>
+                        </div>
+
+                        <!-- Image search / Lens -->
+                        <div class="search-action-btn" aria-label="Search by image" role="button" tabindex="0" title="Search by image">
+                            <svg aria-hidden="true" focusable="false" viewBox="0 -960 960 960" xmlns="http://www.w3.org/2000/svg">
+                                <path fill="#4285f4" d="M480-320q-50 0-85-35t-35-85q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35Zm240 160q-33 0-56.5-23.5T640-240q0-33 23.5-56.5T720-320q33 0 56.5 23.5T800-240q0 33-23.5 56.5T720-160Zm-440 40q-66 0-113-47t-47-113v-80h80v80q0 33 23.5 56.5T280-200h200v80H280Zm480-320v-160q0-33-23.5-56.5T680-680H280q-33 0-56.5 23.5T200-600v120h-80v-120q0-66 47-113t113-47h80l40-80h160l40 80h80q66 0 113 47t47 113v160h-80Z"></path>
+                            </svg>
+                        </div>
+
+                        <!-- Submit / Search button -->
+                        <button class="submit-btn" type="submit" title="Swift Search">
+                            <svg focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#4285f4"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
+
                 <div class="buttons">
                     <button type="submit">Swift Search</button>
                     <button type="button">I'm Feeling Swift</button>
                 </div>
             </form>
         </div>
-    </div>
-    
-    <div class="footer">
-        <div class="footer-location">United States</div>
-        <div class="footer-links">
-            <div class="footer-left">
-                <a href="#">Advertising</a>
-                <a href="#">Business</a>
-                <a href="#">How Search works</a>
-            </div>
-            <div class="footer-right">
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
-                <a href="#">Settings</a>
+
+        <!-- Spacer -->
+        <div class="flex-grow"></div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-location">United States</div>
+            <div class="footer-links">
+                <div>
+                    <a href="#">Advertising</a>
+                    <a href="#">Business</a>
+                    <a href="#">How Search works</a>
+                </div>
+                <div>
+                    <a href="#">Privacy</a>
+                    <a href="#">Terms</a>
+                    <a href="#">Settings</a>
+                </div>
             </div>
         </div>
     </div>
 
 {% else %}
-    <!-- RESULTS PAGE -->
+    <!-- ============ RESULTS PAGE ============ -->
     <div style="display: flex; flex-direction: column; min-height: 100vh;">
         <div class="results-header">
-            <a href="/" class="logo results-logo">
-                <span>S</span><span>w</span><span>i</span><span>f</span><span>t</span>
+            <a href="/" class="results-logo">
+                <span class="blue" style="color:#4285F4">S</span><span style="color:#EA4335">w</span><span style="color:#FBBC05">i</span><span style="color:#4285F4">f</span><span style="color:#34A853">t</span>
             </a>
             <div class="results-search-container">
-                <form action="/" method="GET">
-                    <div class="search-box" style="margin: 0; padding: 0 0 0 14px; box-shadow: 0 1px 6px rgba(32,33,36,.28);">
-                        <input type="text" name="q" value="{{ query }}">
-                        <div class="mic-icon">
-                            <svg focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#4285f4" d="m12 15c1.66 0 3-1.31 3-2.97v-7.02c0-1.66-1.34-3.01-3-3.01s-3 1.34-3 3.01v7.02c0 1.66 1.34 2.97 3 2.97z"></path><path fill="#34a853" d="m11 18.08h2v3.92h-2z"></path><path fill="#fbbc05" d="m7.05 16.87c-1.27-1.33-2.05-2.83-2.05-4.87h2c0 1.45.56 2.42 1.47 3.38v.32l-1.15 1.18z"></path><path fill="#ea4335" d="m12 16.93a4.97 5.25 0 0 1 -3.54 -1.55l-1.41 1.49c1.26 1.34 3.02 2.13 4.95 2.13 3.87 0 6.99-2.92 6.99-7h-1.99c0 2.92-2.24 4.93-5 4.93z"></path></svg>
+                <form action="/" method="GET" autocomplete="off">
+                    <div class="search-box">
+                        <div class="search-input-area">
+                            <input type="text" name="q" value="{{ query }}">
                         </div>
-                        <button type="submit" style="background: none; border: none; cursor: pointer; padding: 0 16px; height: 44px; border-left: 1px solid #dfe1e5;">
-                            <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#4285f4"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
-                        </button>
+                        <div class="search-actions">
+                            <div class="search-action-btn" aria-label="Search by voice" role="button" tabindex="0">
+                                <svg aria-hidden="true" focusable="false" viewBox="0 -960 960 960" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill="#4285f4" d="M480-400q-50 0-85-35t-35-85v-240q0-50 35-85t85-35q50 0 85 35t35 85v240q0 50-35 85t-85 35Zm-40 280v-123q-104-14-172-93t-68-184h80q0 83 58.5 141.5T480-320q83 0 141.5-58.5T680-520h80q0 105-68 184t-172 93v123h-80Z"></path>
+                                </svg>
+                            </div>
+                            <button type="submit" style="background: none; border: none; cursor: pointer; padding: 0 16px; height: 44px; display: flex; align-items: center;">
+                                <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#4285f4">
+                                    <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
             <div class="top-nav-right" style="margin-left: auto;">
-                <div class="icon-btn" style="margin-left: 10px;">
-                    <svg focusable="false" viewBox="0 0 24 24" width="24" height="24" fill="#5f6368"><path d="M6 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm12 20c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-14c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-6 6c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path></svg>
+                <div class="icon-btn">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="24" height="24">
+                        <path d="M6,8c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM12,20c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM6,20c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM6,14c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM12,14c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM16,6c0,1.1 0.9,2 2,2s2,-0.9 2,-2 -0.9,-2 -2,-2 -2,0.9 -2,2zM12,8c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM18,14c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM18,20c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2z" fill="#5f6368"></path>
+                    </svg>
                 </div>
-                <div class="profile-btn">S</div>
+                <div class="profile-btn">A</div>
             </div>
         </div>
 
         <div class="results-body">
-            <p style="color: #70757a; font-size: 14px; margin-bottom: 24px;">About {{ results|length }} results (0.001 seconds)</p>
-            
+            <p class="result-stats">About {{ results|length }} results (0.001 seconds)</p>
+
             {% if results %}
                 {% for result in results %}
                     <div class="result-item">
