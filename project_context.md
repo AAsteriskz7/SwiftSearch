@@ -10,7 +10,7 @@ A mini search engine featuring a web crawler, an inverted index, and a PageRank-
 ---
 
 ## Current Status
-- **Current Phase**: Phase 1: The Web Crawler (Data Collection)
+- **Current Phase**: Project Completed (All 4 phases finished)
 
 ---
 
