@@ -5,40 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Swift Search</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        body { font-family: arial, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; }
         
+        /* Top Navigation */
+        .top-nav { display: flex; justify-content: space-between; padding: 6px; font-size: 13px; align-items: center; }
+        .top-nav a { color: rgba(0,0,0,0.87); text-decoration: none; padding: 5px; margin: 0 5px; display: inline-block; }
+        .top-nav a:hover { text-decoration: underline; }
+        .top-nav-left, .top-nav-right { display: flex; align-items: center; }
+        .top-nav-right a { margin-left: 5px; }
+        
+        /* Icons */
+        .icon-btn { cursor: pointer; border-radius: 50%; padding: 8px; display: flex; align-items: center; justify-content: center; }
+        .icon-btn:hover { background-color: rgba(60,64,67,0.08); }
+        .profile-btn { border-radius: 50%; background-color: #34A853; color: white; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-left: 10px; cursor: pointer; }
+
         /* Homepage Layout */
-        .homepage { display: flex; flex-direction: column; align-items: center; padding-top: 15vh; height: 100vh; }
-        .logo { font-size: 80px; font-weight: bold; margin-bottom: 20px; letter-spacing: -3px; user-select: none; }
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; align-items: center; padding-top: 10vh; }
+        .logo { font-size: 80px; font-weight: bold; margin-bottom: 25px; letter-spacing: -3px; user-select: none; }
         
         /* Google Colors */
-        .logo span:nth-child(1), .logo span:nth-child(4), .logo span:nth-child(7) { color: #4285F4; } /* Blue */
-        .logo span:nth-child(2), .logo span:nth-child(6), .logo span:nth-child(8), .logo span:nth-child(11) { color: #EA4335; } /* Red */
-        .logo span:nth-child(3), .logo span:nth-child(9) { color: #FBBC05; } /* Yellow */
-        .logo span:nth-child(5), .logo span:nth-child(10) { color: #34A853; } /* Green */
+        .logo span:nth-child(1), .logo span:nth-child(4), .logo span:nth-child(7) { color: #4285F4; } 
+        .logo span:nth-child(2), .logo span:nth-child(6), .logo span:nth-child(8), .logo span:nth-child(11) { color: #EA4335; } 
+        .logo span:nth-child(3), .logo span:nth-child(9) { color: #FBBC05; } 
+        .logo span:nth-child(5), .logo span:nth-child(10) { color: #34A853; } 
         
-        .search-container { width: 100%; max-width: 584px; }
+        .search-container { width: 100%; max-width: 584px; position: relative; }
         .search-box { 
             display: flex; align-items: center; border: 1px solid #dfe1e5; 
-            border-radius: 24px; padding: 10px 20px; box-shadow: none; 
-            transition: box-shadow 200ms; background: #fff;
+            border-radius: 24px; padding: 5px 8px 5px 14px; box-shadow: none; 
+            transition: box-shadow 200ms; background: #fff; height: 34px;
         }
-        .search-box:hover { box-shadow: 0 1px 6px rgba(32,33,36,.28); border-color: rgba(223,225,229,0); }
-        .search-box input { border: none; outline: none; font-size: 16px; flex-grow: 1; padding: 5px 10px; }
-        
-        .buttons { text-align: center; margin-top: 18px; }
+        .search-box:hover, .search-box:focus-within { box-shadow: 0 1px 6px rgba(32,33,36,.28); border-color: rgba(223,225,229,0); }
+        .search-box input { border: none; outline: none; font-size: 16px; flex-grow: 1; padding: 0 10px; height: 34px; }
+        .search-icon { display: flex; align-items: center; padding-right: 4px; }
+        .mic-icon, .camera-icon { padding: 0 8px; cursor: pointer; display: flex; align-items: center; }
+
+        .buttons { text-align: center; margin-top: 25px; }
         .buttons button {
             background-color: #f8f9fa; border: 1px solid #f8f9fa; border-radius: 4px;
             color: #3c4043; font-family: arial,sans-serif; font-size: 14px;
-            margin: 11px 4px; padding: 0 16px; line-height: 27px; height: 36px; cursor: pointer;
+            margin: 0 4px; padding: 0 16px; line-height: 27px; height: 36px; cursor: pointer;
         }
         .buttons button:hover { border: 1px solid #dadce0; box-shadow: 0 1px 1px rgba(0,0,0,.1); color: #202124; }
 
-        /* Results Page Layout */
+        /* Footer */
+        .footer { background: #f2f2f2; color: #70757a; font-size: 14px; }
+        .footer-location { padding: 15px 30px; border-bottom: 1px solid #dadce0; }
+        .footer-links { display: flex; justify-content: space-between; padding: 15px 30px; }
+        .footer-links a { color: #70757a; text-decoration: none; padding: 0 15px; display: inline-block; }
+        .footer-links a:hover { text-decoration: underline; }
+        @media (max-width: 600px) { .footer-links { flex-direction: column; text-align: center; } .footer-links a { padding: 10px; } }
+
+        /* Results Page Specifics */
         .results-header { display: flex; align-items: center; padding: 20px 30px; border-bottom: 1px solid #ebebeb; }
         .results-logo { font-size: 30px; font-weight: bold; margin-right: 30px; text-decoration: none; letter-spacing: -1px; }
         .results-search-container { max-width: 690px; flex-grow: 1; }
-        .results-body { padding: 20px 150px; max-width: 652px; }
+        .results-body { padding: 20px 150px; max-width: 652px; flex-grow: 1; }
         
         .result-item { margin-bottom: 30px; }
         .result-url { color: #202124; font-size: 14px; text-decoration: none; display: block; margin-bottom: 2px; }
@@ -52,7 +74,22 @@
 
 {% if not query %}
     <!-- HOMEPAGE -->
-    <div class="homepage">
+    <div class="top-nav">
+        <div class="top-nav-left">
+            <a href="#">About</a>
+            <a href="#">Store</a>
+        </div>
+        <div class="top-nav-right">
+            <a href="#">Gmail</a>
+            <a href="#">Images</a>
+            <div class="icon-btn" style="margin-left: 10px;">
+                <svg focusable="false" viewBox="0 0 24 24" width="24" height="24" fill="#5f6368"><path d="M6 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm12 20c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-14c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-6 6c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path></svg>
+            </div>
+            <div class="profile-btn">S</div>
+        </div>
+    </div>
+
+    <div class="main-content">
         <div class="logo">
             <span>S</span><span>w</span><span>i</span><span>f</span><span>t</span>
             <span> </span>
@@ -61,8 +98,16 @@
         <div class="search-container">
             <form action="/" method="GET">
                 <div class="search-box">
-                    <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="#9aa0a6"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+                    <div class="search-icon">
+                        <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="#9aa0a6"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+                    </div>
                     <input type="text" name="q" value="" autofocus>
+                    <div class="mic-icon">
+                        <svg focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#4285f4" d="m12 15c1.66 0 3-1.31 3-2.97v-7.02c0-1.66-1.34-3.01-3-3.01s-3 1.34-3 3.01v7.02c0 1.66 1.34 2.97 3 2.97z"></path><path fill="#34a853" d="m11 18.08h2v3.92h-2z"></path><path fill="#fbbc05" d="m7.05 16.87c-1.27-1.33-2.05-2.83-2.05-4.87h2c0 1.45.56 2.42 1.47 3.38v.32l-1.15 1.18z"></path><path fill="#ea4335" d="m12 16.93a4.97 5.25 0 0 1 -3.54 -1.55l-1.41 1.49c1.26 1.34 3.02 2.13 4.95 2.13 3.87 0 6.99-2.92 6.99-7h-1.99c0 2.92-2.24 4.93-5 4.93z"></path></svg>
+                    </div>
+                    <div class="camera-icon">
+                        <svg focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#4285f4" d="m13.5 9c0 1.93-1.57 3.5-3.5 3.5s-3.5-1.57-3.5-3.5 1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5zm-5 0c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5-1.5.67-1.5 1.5z"></path><path fill="#ea4335" d="m10 16c-3.31 0-6-2.69-6-6h2c0 2.21 1.79 4 4 4v2z"></path><path fill="#fbbc05" d="m16 10h-2c0 3.31-2.69 6-6 6v2c4.41 0 8-3.59 8-8z"></path><path fill="#34a853" d="m16 10h2c0 2.21-1.79 4-4 4v2c3.31 0 6-2.69 6-6z"></path></svg>
+                    </div>
                 </div>
                 <div class="buttons">
                     <button type="submit">Swift Search</button>
@@ -71,22 +116,48 @@
             </form>
         </div>
     </div>
+    
+    <div class="footer">
+        <div class="footer-location">United States</div>
+        <div class="footer-links">
+            <div class="footer-left">
+                <a href="#">Advertising</a>
+                <a href="#">Business</a>
+                <a href="#">How Search works</a>
+            </div>
+            <div class="footer-right">
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Settings</a>
+            </div>
+        </div>
+    </div>
+
 {% else %}
     <!-- RESULTS PAGE -->
-    <div>
+    <div style="display: flex; flex-direction: column; min-height: 100vh;">
         <div class="results-header">
             <a href="/" class="logo results-logo">
                 <span>S</span><span>w</span><span>i</span><span>f</span><span>t</span>
             </a>
             <div class="results-search-container">
                 <form action="/" method="GET">
-                    <div class="search-box" style="margin: 0; box-shadow: 0 1px 6px rgba(32,33,36,.28);">
+                    <div class="search-box" style="margin: 0; padding: 0 0 0 14px; box-shadow: 0 1px 6px rgba(32,33,36,.28);">
                         <input type="text" name="q" value="{{ query }}">
-                        <button type="submit" style="background: none; border: none; cursor: pointer; padding: 0 10px;">
+                        <div class="mic-icon">
+                            <svg focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#4285f4" d="m12 15c1.66 0 3-1.31 3-2.97v-7.02c0-1.66-1.34-3.01-3-3.01s-3 1.34-3 3.01v7.02c0 1.66 1.34 2.97 3 2.97z"></path><path fill="#34a853" d="m11 18.08h2v3.92h-2z"></path><path fill="#fbbc05" d="m7.05 16.87c-1.27-1.33-2.05-2.83-2.05-4.87h2c0 1.45.56 2.42 1.47 3.38v.32l-1.15 1.18z"></path><path fill="#ea4335" d="m12 16.93a4.97 5.25 0 0 1 -3.54 -1.55l-1.41 1.49c1.26 1.34 3.02 2.13 4.95 2.13 3.87 0 6.99-2.92 6.99-7h-1.99c0 2.92-2.24 4.93-5 4.93z"></path></svg>
+                        </div>
+                        <button type="submit" style="background: none; border: none; cursor: pointer; padding: 0 16px; height: 44px; border-left: 1px solid #dfe1e5;">
                             <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#4285f4"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
                         </button>
                     </div>
                 </form>
+            </div>
+            <div class="top-nav-right" style="margin-left: auto;">
+                <div class="icon-btn" style="margin-left: 10px;">
+                    <svg focusable="false" viewBox="0 0 24 24" width="24" height="24" fill="#5f6368"><path d="M6 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm12 20c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-14c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-6 6c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path></svg>
+                </div>
+                <div class="profile-btn">S</div>
             </div>
         </div>
 
