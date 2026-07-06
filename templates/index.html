@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swift Search</title>
+</head>
+<body>
+    <div>
+        <h1>Swift Search</h1>
+        <form action="/" method="GET">
+            <input type="text" name="q" value="{{ query }}" required>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    {% if query %}
+        <div>
+            <p>Showing results for: <strong>{{ query }}</strong></p>
+            
+            {% if results %}
+                <ul>
+                    {% for result in results %}
+                        <li>
+                            <a href="{{ result.url }}">{{ result.url }}</a><br>
+                            <small>Score: {{ result.score }}</small><br>
+                            <p>{{ result.snippet }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No results found.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</body>
+</html>

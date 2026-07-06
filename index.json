@@ -1,0 +1,307 @@
+{
+    "example": {
+        "https://example.com": 2,
+        "https://iana.org/domains/example": 6
+    },
+    "domain": {
+        "https://example.com": 3,
+        "https://iana.org/domains/example": 3
+    },
+    "use": {
+        "https://example.com": 2
+    },
+    "documentation": {
+        "https://example.com": 1,
+        "https://iana.org/domains/example": 1
+    },
+    "examples": {
+        "https://example.com": 1,
+        "https://iana.org/domains/example": 1
+    },
+    "without": {
+        "https://example.com": 1,
+        "https://iana.org/domains/example": 1
+    },
+    "needing": {
+        "https://example.com": 1
+    },
+    "permission": {
+        "https://example.com": 1
+    },
+    "avoid": {
+        "https://example.com": 1
+    },
+    "operations": {
+        "https://example.com": 1
+    },
+    "learn": {
+        "https://example.com": 1
+    },
+    "domains": {
+        "https://iana.org/domains/example": 7
+    },
+    "protocols": {
+        "https://iana.org/domains/example": 2
+    },
+    "numbers": {
+        "https://iana.org/domains/example": 1
+    },
+    "described": {
+        "https://iana.org/domains/example": 1
+    },
+    "rfc": {
+        "https://iana.org/domains/example": 2
+    },
+    "2606": {
+        "https://iana.org/domains/example": 1
+    },
+    "6761": {
+        "https://iana.org/domains/example": 1
+    },
+    "number": {
+        "https://iana.org/domains/example": 2
+    },
+    "com": {
+        "https://iana.org/domains/example": 1
+    },
+    "org": {
+        "https://iana.org/domains/example": 1
+    },
+    "maintained": {
+        "https://iana.org/domains/example": 1
+    },
+    "purposes": {
+        "https://iana.org/domains/example": 1
+    },
+    "may": {
+        "https://iana.org/domains/example": 1
+    },
+    "used": {
+        "https://iana.org/domains/example": 1
+    },
+    "illustrative": {
+        "https://iana.org/domains/example": 1
+    },
+    "documents": {
+        "https://iana.org/domains/example": 1
+    },
+    "prior": {
+        "https://iana.org/domains/example": 1
+    },
+    "coordination": {
+        "https://iana.org/domains/example": 1
+    },
+    "us": {
+        "https://iana.org/domains/example": 3
+    },
+    "available": {
+        "https://iana.org/domains/example": 1
+    },
+    "registration": {
+        "https://iana.org/domains/example": 1
+    },
+    "transfer": {
+        "https://iana.org/domains/example": 1
+    },
+    "provide": {
+        "https://iana.org/domains/example": 2
+    },
+    "web": {
+        "https://iana.org/domains/example": 2
+    },
+    "service": {
+        "https://iana.org/domains/example": 3
+    },
+    "hosts": {
+        "https://iana.org/domains/example": 1
+    },
+    "basic": {
+        "https://iana.org/domains/example": 1
+    },
+    "information": {
+        "https://iana.org/domains/example": 2
+    },
+    "purpose": {
+        "https://iana.org/domains/example": 1
+    },
+    "services": {
+        "https://iana.org/domains/example": 1
+    },
+    "provided": {
+        "https://iana.org/domains/example": 2
+    },
+    "best": {
+        "https://iana.org/domains/example": 1
+    },
+    "effort": {
+        "https://iana.org/domains/example": 1
+    },
+    "designed": {
+        "https://iana.org/domains/example": 1
+    },
+    "support": {
+        "https://iana.org/domains/example": 1
+    },
+    "production": {
+        "https://iana.org/domains/example": 1
+    },
+    "applications": {
+        "https://iana.org/domains/example": 3
+    },
+    "incidental": {
+        "https://iana.org/domains/example": 1
+    },
+    "traffic": {
+        "https://iana.org/domains/example": 1
+    },
+    "incorrectly": {
+        "https://iana.org/domains/example": 1
+    },
+    "configured": {
+        "https://iana.org/domains/example": 1
+    },
+    "expected": {
+        "https://iana.org/domains/example": 1
+    },
+    "please": {
+        "https://iana.org/domains/example": 1
+    },
+    "design": {
+        "https://iana.org/domains/example": 1
+    },
+    "require": {
+        "https://iana.org/domains/example": 1
+    },
+    "operating": {
+        "https://iana.org/domains/example": 1
+    },
+    "http": {
+        "https://iana.org/domains/example": 1
+    },
+    "reading": {
+        "https://iana.org/domains/example": 1
+    },
+    "iana": {
+        "https://iana.org/domains/example": 2
+    },
+    "managed": {
+        "https://iana.org/domains/example": 1
+    },
+    "reserved": {
+        "https://iana.org/domains/example": 1
+    },
+    "last": {
+        "https://iana.org/domains/example": 1
+    },
+    "revised": {
+        "https://iana.org/domains/example": 1
+    },
+    "2017": {
+        "https://iana.org/domains/example": 1
+    },
+    "05": {
+        "https://iana.org/domains/example": 1
+    },
+    "13": {
+        "https://iana.org/domains/example": 1
+    },
+    "names": {
+        "https://iana.org/domains/example": 1
+    },
+    "root": {
+        "https://iana.org/domains/example": 1
+    },
+    "zone": {
+        "https://iana.org/domains/example": 2
+    },
+    "registry": {
+        "https://iana.org/domains/example": 3
+    },
+    "int": {
+        "https://iana.org/domains/example": 1
+    },
+    "arpa": {
+        "https://iana.org/domains/example": 1
+    },
+    "idn": {
+        "https://iana.org/domains/example": 1
+    },
+    "repository": {
+        "https://iana.org/domains/example": 1
+    },
+    "resources": {
+        "https://iana.org/domains/example": 1
+    },
+    "abuse": {
+        "https://iana.org/domains/example": 1
+    },
+    "protocol": {
+        "https://iana.org/domains/example": 1
+    },
+    "registries": {
+        "https://iana.org/domains/example": 1
+    },
+    "time": {
+        "https://iana.org/domains/example": 1
+    },
+    "database": {
+        "https://iana.org/domains/example": 1
+    },
+    "news": {
+        "https://iana.org/domains/example": 1
+    },
+    "performance": {
+        "https://iana.org/domains/example": 1
+    },
+    "excellence": {
+        "https://iana.org/domains/example": 1
+    },
+    "archive": {
+        "https://iana.org/domains/example": 1
+    },
+    "contact": {
+        "https://iana.org/domains/example": 1
+    },
+    "functions": {
+        "https://iana.org/domains/example": 1
+    },
+    "coordinate": {
+        "https://iana.org/domains/example": 1
+    },
+    "internet": {
+        "https://iana.org/domains/example": 1
+    },
+    "s": {
+        "https://iana.org/domains/example": 1
+    },
+    "globally": {
+        "https://iana.org/domains/example": 1
+    },
+    "unique": {
+        "https://iana.org/domains/example": 1
+    },
+    "identifiers": {
+        "https://iana.org/domains/example": 2
+    },
+    "public": {
+        "https://iana.org/domains/example": 1
+    },
+    "technical": {
+        "https://iana.org/domains/example": 1
+    },
+    "affiliate": {
+        "https://iana.org/domains/example": 1
+    },
+    "icann": {
+        "https://iana.org/domains/example": 1
+    },
+    "privacy": {
+        "https://iana.org/domains/example": 1
+    },
+    "policy": {
+        "https://iana.org/domains/example": 1
+    },
+    "terms": {
+        "https://iana.org/domains/example": 1
+    }
+}

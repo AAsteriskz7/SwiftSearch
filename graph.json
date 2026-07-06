@@ -1,0 +1,30 @@
+{
+    "https://example.com": [
+        "https://iana.org/domains/example"
+    ],
+    "https://iana.org/domains/example": [
+        "https://iana.org/domains/int",
+        "https://iana.org/archive",
+        "https://iana.org/domains",
+        "https://iana.org/about",
+        "https://iana.org/contact",
+        "https://www.icann.org",
+        "https://iana.org/numbers",
+        "https://iana.org/news",
+        "https://iana.org/domains/root",
+        "https://pti.icann.org",
+        "https://iana.org/domains/arpa",
+        "https://iana.org/go/rfc6761",
+        "https://www.icann.org/privacy/policy",
+        "https://iana.org/protocols",
+        "https://www.icann.org/privacy/tos",
+        "https://iana.org/abuse",
+        "https://iana.org/about/excellence",
+        "https://iana.org/go/rfc2606",
+        "https://iana.org",
+        "https://iana.org/time-zones",
+        "https://iana.org/domains/reserved",
+        "https://iana.org/domains/idn-tables",
+        "https://iana.org/performance"
+    ]
+}
